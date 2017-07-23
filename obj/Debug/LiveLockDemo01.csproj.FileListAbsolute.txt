@@ -1,0 +1,6 @@
+D:\David\Programming\C#\LiveLockDemo01\bin\Debug\LiveLockDemo01.exe.config
+D:\David\Programming\C#\LiveLockDemo01\bin\Debug\LiveLockDemo01.exe
+D:\David\Programming\C#\LiveLockDemo01\bin\Debug\LiveLockDemo01.pdb
+D:\David\Programming\C#\LiveLockDemo01\obj\Debug\LiveLockDemo01.csprojResolveAssemblyReference.cache
+D:\David\Programming\C#\LiveLockDemo01\obj\Debug\LiveLockDemo01.exe
+D:\David\Programming\C#\LiveLockDemo01\obj\Debug\LiveLockDemo01.pdb
