@@ -100,7 +100,24 @@ namespace LivelockDemo01
                         m_MyResource.Release();
                         bAcquired = false;
                         ThreadOutputText("I gave up resource.", CONSOLE_COLOR_THREAD_01);
-                        Thread.Sleep(0);
+                        // The amount of time taken for the thread
+                        // to sleep will affect how fast this thread
+                        // re-tries to acquire the resource.
+                        //
+                        // If it is too fast, this thread may acquire
+                        // the resource without the other thread
+                        // even attempting to try to acquire the resource.
+                        //
+                        // If it is too slow, the other thread may 
+                        // successfully acquire the resource and this
+                        // thread may not have enough time to try
+                        // to acquire the resource. As a result,
+                        // the other thread will not detect that this
+                        // thread is trying to acquire the resource
+                        // and hence it will think it need not release
+                        // the resource. The other thread thus completes
+                        // its task and there will be no Livelock.
+                        Thread.Sleep(500);
                         continue;
                     }
 
@@ -151,7 +168,7 @@ namespace LivelockDemo01
                         m_MyResource.Release();
                         bAcquired = false;
                         ThreadOutputText("I gave up resource.", CONSOLE_COLOR_THREAD_02);
-                        Thread.Sleep(0);
+                        Thread.Sleep(500);
                         continue;
                     }
 
