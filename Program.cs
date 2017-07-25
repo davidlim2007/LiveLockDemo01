@@ -6,6 +6,12 @@ using System.Threading;
 
 namespace LivelockDemo01
 {
+    // The MyResource class represents a system resource,
+    // the ownership of which is being contested between the
+    // two threads.
+    //
+    // It makes use of the Monitor class to lock down
+    // resources. The m_objLock object serves as the resource.
     class MyResource
     {
         public MyResource()
@@ -16,12 +22,26 @@ namespace LivelockDemo01
         {
             if (Monitor.TryEnter(m_objLock) == true)
             {
+                // If a thread has managed to enter the
+                // Monitor, SomeThreadTriedToAcquireAndFailed
+                // will be false (as a thread has successfully
+                // acquired the resource).
                 SomeThreadTriedToAcquireAndFailed = false;
+
+                // A true value is returned to signal a successful
+                // acquisition.
                 return true;
             }
             else
             {
+                // If a thread has failed to enter the
+                // Monitor, SomeThreadTriedToAcquireAndFailed
+                // will be true (as a thread has unsuccessfully
+                // acquired the resource).
                 SomeThreadTriedToAcquireAndFailed = true;
+
+                // A false value is returned to signal an unsuccessful
+                // acquisition.
                 return false;
             }
         }
@@ -44,12 +64,22 @@ namespace LivelockDemo01
             }
         }
 
+        // The object used for accessing the critical section
+        // of code.
         private object m_objLock = new object();
+
+        // A value representing whether or not a thread has
+        // attempted to enter the Monitor (i.e. gain ownership
+        // of the resource).
+        //
+        // Initially set to false.
         private bool m_bSomeThreadTriedToAcquireAndFailed = false;
     }
 
     class Program
     {
+        // We color code the output of each thread so as to
+        // distinguish between them.
         const ConsoleColor CONSOLE_COLOR_THREAD_01 = ConsoleColor.White;
         const ConsoleColor CONSOLE_COLOR_THREAD_02 = ConsoleColor.Cyan;
 
@@ -72,15 +102,24 @@ namespace LivelockDemo01
             thread.Join();
         }
 
+        // The entry-point method for Thread 01.
         static void ThreadMethod01()
         {
+            // A bool value representing whether
+            // the resource is successfully acuqired
+            // or not.
+            //
+            // Initially set to false.
             bool bAcquired = false;
 
             try
             {
                 while (true)
                 {
-                    // Attempt to acquire resource.
+                    // Continually attempt to acquire the resource.
+                    //
+                    // If the thread fails to do so, the while-loop
+                    // will reiterate and the thread will try again.
                     if (m_MyResource.Acquire() == false)
                     {
                         continue;
@@ -100,6 +139,7 @@ namespace LivelockDemo01
                         m_MyResource.Release();
                         bAcquired = false;
                         ThreadOutputText("I gave up resource.", CONSOLE_COLOR_THREAD_01);
+
                         // The amount of time taken for the thread
                         // to sleep will affect how fast this thread
                         // re-tries to acquire the resource.
@@ -111,19 +151,28 @@ namespace LivelockDemo01
                         // If it is too slow, the other thread may 
                         // successfully acquire the resource and this
                         // thread may not have enough time to try
-                        // to acquire the resource. As a result,
-                        // the other thread will not detect that this
-                        // thread is trying to acquire the resource
+                        // to acquire the resource. 
+                        //
+                        // As a result, the other thread will not detect 
+                        // that this thread is trying to acquire the resource
                         // and hence it will think it need not release
                         // the resource. The other thread thus completes
                         // its task and there will be no Livelock.
                         Thread.Sleep(500);
+
+                        // Re-iterate the while loop.
                         continue;
                     }
 
+                    // If the thread manages to get to this point,
+                    // it is able to hold on to the resource 
+                    // without another thread requesting ownership.
+                    //
+                    // It is hence able to break out of the loop
+                    // and finish.
                     break;
                 }
-
+                
                 ThreadOutputText("Progress.", CONSOLE_COLOR_THREAD_01);
             }
             catch (Exception ex)
@@ -134,6 +183,8 @@ namespace LivelockDemo01
             }
             finally
             {
+                // If the thread still has ownership of
+                // the resource, release it.
                 if (bAcquired)
                 {
                     m_MyResource.Release();
@@ -144,6 +195,10 @@ namespace LivelockDemo01
             }
         }
 
+        // The entry-point method for Thread 02.
+        //
+        // It is identical to ThreadMethod01() save for
+        // the color coding used.
         static void ThreadMethod02()
         {
             bool bAcquired = false;
@@ -195,6 +250,15 @@ namespace LivelockDemo01
             }
         }
 
+        // This is a specialized method for outputting messages
+        // to the console.
+        //
+        // It takes in a string parameter, representing the message
+        // to output, and a ConsoleColor representing the color to
+        // print the message in.
+        //
+        // This helps us distinguish between the output of the threads,
+        // as each thread is color-coded differently.
         static void ThreadOutputText(string strText, ConsoleColor color)
         {
             lock (m_objTextOutput)
